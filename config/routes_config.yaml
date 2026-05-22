@@ -1,0 +1,26 @@
+# Rutas personales — edita estas coordenadas con tus puntos reales
+# Puedes obtener lat/lon desde Google Maps: clic derecho sobre el mapa → "¿Qué hay aquí?"
+#
+# typical_departure_time: hora a la que normalmente sales (formato HH:MM, 24h)
+# active: true/false — false pausa la recolección sin eliminar el historial
+
+routes:
+  - label: "Casa → Oficina"
+    origin_address: "Tu casa, Ciudad, País"
+    destination_address: "Tu oficina, Ciudad, País"
+    origin_lat: 10.857222867588492 # Ejemplo: Barranquilla, Colombia
+    origin_lon: -74.77208724641312
+    dest_lat: 10.930436691820809
+    dest_lon: -74.85466013428844
+    typical_departure_time: "07:15"
+    active: true
+
+  - label: "Oficina → Casa"
+    origin_address: "Tu oficina, Ciudad, País"
+    destination_address: "Tu casa, Ciudad, País"
+    origin_lat: 10.930436691820809
+    origin_lon: -74.85466013428844
+    dest_lat: 10.857222867588492
+    dest_lon: -74.77208724641312
+    typical_departure_time: "17:30"
+    active: true

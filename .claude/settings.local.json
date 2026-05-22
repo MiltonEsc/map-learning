@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"c:/Users/milton/Downloads/n8n\" -maxdepth 2 -type f \\\\\\( -name \"*.py\" -o -name \"*.md\" -o -name \"requirements.txt\" -o -name \"setup.py\" -o -name \"package.json\" -o -name \"README*\" \\\\\\) | head -20)",
+      "Read(//c/Users/milton/Downloads/n8n/**)",
+      "Bash(dir \"c:\\\\Users\\\\milton\\\\Downloads\\\\n8n\\\\machine-learning\")",
+      "WebFetch(domain:developers.google.com)"
+    ]
+  }
+}
