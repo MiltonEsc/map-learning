@@ -145,9 +145,9 @@ export default function TrafficChart({ route }: { route: Route }) {
                 color: "#fff",
                 fontSize: 12,
               }}
-              formatter={(val: number, _: string, entry: any) => [
-                `${val} min`,
-                `Tráfico: ${entry.payload.nivel}`,
+              formatter={(val, _name, entry: any) => [
+                `${val ?? 0} min`,
+                `Tráfico: ${entry?.payload?.nivel ?? ""}`,
               ]}
             />
             <Area
