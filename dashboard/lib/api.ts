@@ -1,10 +1,5 @@
-// En el navegador usa el proxy de Next.js (/backend/) para que funcione
-// desde cualquier dispositivo en la red (iPhone, PC, etc.)
-// En el servidor Next.js usa la URL directa de FastAPI.
-const API_BASE =
-  typeof window === "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
-    : "/backend";
+// Usa siempre la URL del backend directamente (funciona en browser y servidor)
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export interface Route {
   id: number;
@@ -79,8 +74,8 @@ export async function getRoutePolyline(routeId: number): Promise<string | null> 
 }
 
 export function getCameraStreamUrl(): string {
-  const wsBase = typeof window !== "undefined"
-    ? `ws://${window.location.host}/backend`
-    : "ws://localhost:8000";
-  return `${wsBase}/camera/stream`;
+  const base = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000")
+    .replace("https://", "wss://")
+    .replace("http://", "ws://");
+  return `${base}/camera/stream`;
 }
