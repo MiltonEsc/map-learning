@@ -17,19 +17,6 @@ export interface JarvisState {
   reply: string;
 }
 
-let _audioCtx: AudioContext | null = null;
-
-function getAudioCtx(): AudioContext {
-  if (!_audioCtx || _audioCtx.state === "closed") {
-    _audioCtx = new AudioContext();
-  }
-  // iOS requiere reanudar el contexto tras interacción del usuario
-  if (_audioCtx.state === "suspended") {
-    _audioCtx.resume();
-  }
-  return _audioCtx;
-}
-
 async function speakText(text: string, urgent = false): Promise<void> {
   const res = await fetch("/api/tts", {
     method: "POST",
@@ -38,18 +25,14 @@ async function speakText(text: string, urgent = false): Promise<void> {
   });
   if (!res.ok) return;
 
-  // Recibir el buffer completo antes de reproducir — evita cortes
-  const arrayBuffer = await res.arrayBuffer();
-  const ctx = getAudioCtx();
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
 
   return new Promise((resolve) => {
-    ctx.decodeAudioData(arrayBuffer, (decoded) => {
-      const source = ctx.createBufferSource();
-      source.buffer = decoded;
-      source.connect(ctx.destination);
-      source.onended = () => resolve();
-      source.start(0);
-    }, () => resolve()); // fallback si falla el decode
+    const audio = new Audio(url);
+    audio.oncanplaythrough = () => audio.play().catch(resolve);
+    audio.onended = () => { URL.revokeObjectURL(url); resolve(); };
+    audio.onerror = () => { URL.revokeObjectURL(url); resolve(); };
   });
 }
 

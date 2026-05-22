@@ -124,8 +124,8 @@ export default function DrivePage() {
       streamRef.current = stream;
       setCameraActive(true);
 
-      // Analizar frame cada 4 segundos
-      visionInterval.current = setInterval(() => captureAndAnalyze(), 4000);
+      // Analizar frame cada 8 segundos (optimizado para datos móviles)
+      visionInterval.current = setInterval(() => captureAndAnalyze(), 8000);
     } catch (err) {
       console.error("Error cámara:", err);
     }
@@ -150,10 +150,11 @@ export default function DrivePage() {
     if (!video || !canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    canvas.width = 640;
-    canvas.height = 360;
-    ctx.drawImage(video, 0, 0, 640, 360);
-    const base64 = canvas.toDataURL("image/jpeg", 0.7).split(",")[1];
+    // Resolución reducida para datos móviles (~15KB por frame)
+    canvas.width = 320;
+    canvas.height = 180;
+    ctx.drawImage(video, 0, 0, 320, 180);
+    const base64 = canvas.toDataURL("image/jpeg", 0.4).split(",")[1];
     analyzeFrame(base64);
   };
 
