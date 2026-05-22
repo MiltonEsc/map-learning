@@ -36,6 +36,9 @@ class Settings(BaseSettings):
 
     # Application
     app_env: str = Field(default="development", alias="APP_ENV")
+    # CORS: lista separada por comas. Ej: "https://mi-app.vercel.app,http://localhost:3000"
+    # Dejar vacío para desarrollo (acepta todo)
+    allowed_origins: str = Field(default="", alias="ALLOWED_ORIGINS")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     tz: str = Field(default="America/Bogota", alias="TZ")
 

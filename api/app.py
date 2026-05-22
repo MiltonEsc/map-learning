@@ -12,9 +12,12 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# En producción se leen desde ALLOWED_ORIGINS; en desarrollo acepta todo
+_ORIGINS = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()] or ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
