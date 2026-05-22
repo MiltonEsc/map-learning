@@ -1,5 +1,5 @@
-// Usa siempre la URL del backend directamente (funciona en browser y servidor)
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// Usa siempre la URL del backend directamente — quita barra final si existe
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
 export interface Route {
   id: number;
