@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
 import {
   Mic, MicOff, AlertTriangle, CheckCircle,
-  Navigation, MapPin, LayoutDashboard, Plus
+  Navigation, MapPin, LayoutDashboard, Plus, ChevronUp
 } from "lucide-react";
 import Link from "next/link";
 import RouteCreator from "@/components/RouteCreator";
@@ -97,6 +97,7 @@ export default function DrivePage() {
   const [predictions, setPredictions] = useState<Record<number, Prediction>>({});
   const [showMap, setShowMap] = useState(false);
   const [showCreator, setShowCreator] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
   // Contexto de tráfico para Jarvis
   const getTrafficContext = useCallback(() => {
@@ -123,6 +124,7 @@ export default function DrivePage() {
       }
       streamRef.current = stream;
       setCameraActive(true);
+      setShowControls(false);
 
       // Analizar frame cada 8 segundos (optimizado para datos móviles)
       visionInterval.current = setInterval(() => captureAndAnalyze(), 8000);
@@ -142,6 +144,7 @@ export default function DrivePage() {
       videoRef.current.srcObject = null;
     }
     setCameraActive(false);
+    setShowControls(true);
   };
 
   const captureAndAnalyze = () => {
@@ -229,7 +232,7 @@ export default function DrivePage() {
 
       {/* ── Mapa (esquina inferior izquierda) ── */}
       {showMap && apiKey && (
-        <div className="absolute bottom-24 left-4 w-72 h-52 rounded-2xl overflow-hidden border border-white/20 z-30 shadow-2xl">
+        <div className={`absolute left-4 w-72 h-52 rounded-2xl overflow-hidden border border-white/20 z-50 shadow-2xl transition-all duration-300 ${showControls ? "bottom-32" : "bottom-4"}`}>
           <APIProvider apiKey={apiKey} libraries={["geometry"]}>
             <Map
               style={{ width: "100%", height: "100%" }}
@@ -277,8 +280,20 @@ export default function DrivePage() {
         </div>
       )}
 
+      {/* ── Toggle controles ── */}
+      <button
+        onClick={() => setShowControls((v) => !v)}
+        className={`absolute left-1/2 -translate-x-1/2 z-50 bg-black/55 backdrop-blur px-4 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-300 ${showControls ? "bottom-[7.5rem]" : "bottom-4"}`}
+      >
+        <ChevronUp
+          size={14}
+          className={`text-white/60 transition-transform duration-300 ${showControls ? "rotate-180" : ""}`}
+        />
+        <span className="text-white/60 text-xs">{showControls ? "Ocultar" : "Controles"}</span>
+      </button>
+
       {/* ── Barra inferior de controles ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-40 p-4">
+      <div className={`absolute bottom-0 left-0 right-0 z-40 p-4 transition-transform duration-300 ${showControls ? "translate-y-0" : "translate-y-full"}`}>
         <div className="bg-black/70 backdrop-blur-md rounded-2xl px-6 py-4 flex items-center justify-between gap-4">
 
           {/* Botón cámara */}
