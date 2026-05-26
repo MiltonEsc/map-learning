@@ -6,6 +6,10 @@ export interface Route {
   label: string;
   origin_address: string;
   destination_address: string;
+  origin_lat: number;
+  origin_lon: number;
+  dest_lat: number;
+  dest_lon: number;
   typical_departure_time: string | null;
   active: boolean;
 }
