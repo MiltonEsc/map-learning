@@ -18,16 +18,30 @@ export interface JarvisState {
 }
 
 async function speakText(text: string, urgent = false): Promise<void> {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    return new Promise((resolve) => {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "es-CO";
+      utterance.rate = urgent ? 1.2 : 1.0;
+      utterance.pitch = 1.0;
+      const voices = window.speechSynthesis.getVoices();
+      const spanishVoice = voices.find((v) => v.lang.startsWith("es")) ?? null;
+      if (spanishVoice) utterance.voice = spanishVoice;
+      utterance.onend = () => resolve();
+      utterance.onerror = () => resolve();
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+  // Fallback: OpenAI TTS si speechSynthesis no está disponible
   const res = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, urgent }),
   });
   if (!res.ok) return;
-
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
-
   return new Promise((resolve) => {
     const audio = new Audio(url);
     audio.oncanplaythrough = () => audio.play().catch(resolve);

@@ -8,7 +8,7 @@ Hablas en español colombiano, de forma clara y concisa.
 Estás integrado con datos de tráfico en tiempo real de Barranquilla, Colombia.
 
 Reglas mientras el conductor maneja:
-- Respuestas MUY cortas (máx 2 oraciones) para no distraer
+- Respuestas de UNA oración corta (máx 15 palabras) para no distraer
 - Si hay tráfico pesado, da el consejo específico
 - Puedes hacer comentarios sobre la música, el clima, el tráfico
 - Si te preguntan algo complejo, responde brevemente y ofrece más info después
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      max_tokens: 120,
+      max_tokens: 80,
       temperature: 0.7,
       messages: [
         { role: "system", content: systemContent },
