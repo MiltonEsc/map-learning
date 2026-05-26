@@ -7,7 +7,7 @@ import {
   X, ChevronRight, ArrowLeft, Save, Loader2, Star
 } from "lucide-react";
 
-const API_BASE = "/backend";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
 interface LatLng { lat: number; lng: number; }
 interface PlaceResult { address: string; latlng: LatLng; }
@@ -98,7 +98,7 @@ export default function RouteCreator({ onClose, onSaved, apiKey }: Props) {
   const [destination, setDestination] = useState<PlaceResult | null>(null);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [label, setLabel] = useState("");
-  const [departureTime, setDepartureTime] = useState("07:00");
+  const [departureTime, setDepartureTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -132,19 +132,21 @@ export default function RouteCreator({ onClose, onSaved, apiKey }: Props) {
   }, [selectingFor, origin]);
 
   const handleSave = async () => {
-    if (!origin || !destination || !label.trim()) { setError("Escribe un nombre para la ruta"); return; }
+    if (!origin || !destination) { setError("Selecciona origen y destino"); return; }
+    const finalLabel = label.trim() ||
+      `${origin.address.split(",")[0]} → ${destination.address.split(",")[0]}`;
     setSaving(true);
     try {
       const res = await fetch(`${API_BASE}/routes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          label: label.trim(),
+          label: finalLabel,
           origin_address: origin.address,
           destination_address: destination.address,
           origin_lat: origin.latlng.lat, origin_lon: origin.latlng.lng,
           dest_lat: destination.latlng.lat, dest_lon: destination.latlng.lng,
-          typical_departure_time: departureTime,
+          typical_departure_time: departureTime || null,
           active: true,
         }),
       });
@@ -305,17 +307,25 @@ export default function RouteCreator({ onClose, onSaved, apiKey }: Props) {
               {/* Formulario */}
               <div className="px-5 py-4 space-y-4 overflow-y-auto">
                 <div>
-                  <label className="text-white/50 text-xs font-medium uppercase tracking-wider">Nombre de la ruta</label>
+                  <label className="text-white/50 text-xs font-medium uppercase tracking-wider">
+                    Nombre de la ruta <span className="normal-case text-white/30">(opcional)</span>
+                  </label>
                   <input
                     type="text"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
-                    placeholder="Ej: Casa → Oficina"
+                    placeholder={
+                      origin && destination
+                        ? `${origin.address.split(",")[0]} → ${destination.address.split(",")[0]}`
+                        : "Se genera automáticamente"
+                    }
                     className="mt-2 w-full bg-zinc-800 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm placeholder-white/20 focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="text-white/50 text-xs font-medium uppercase tracking-wider">Hora de salida habitual</label>
+                  <label className="text-white/50 text-xs font-medium uppercase tracking-wider">
+                    Hora de salida habitual <span className="normal-case text-white/30">(opcional)</span>
+                  </label>
                   <input
                     type="time"
                     value={departureTime}
@@ -326,7 +336,7 @@ export default function RouteCreator({ onClose, onSaved, apiKey }: Props) {
                 {error && <p className="text-red-400 text-sm">{error}</p>}
                 <button
                   onClick={handleSave}
-                  disabled={!label.trim() || saving}
+                  disabled={saving}
                   className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 disabled:text-white/30 text-white font-semibold py-4 rounded-2xl transition-colors flex items-center justify-center gap-2 text-base"
                 >
                   {saving

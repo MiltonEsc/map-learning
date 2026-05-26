@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.settings import settings
-from api.routers import predict, history, routes, camera, navigate
+from api.routers import predict, history, routes, camera, navigate, ai
 
 app = FastAPI(
     title="TrafficVoice AI",
@@ -28,6 +28,7 @@ app.include_router(history.router)
 app.include_router(routes.router)
 app.include_router(camera.router)
 app.include_router(navigate.router)
+app.include_router(ai.router)
 
 
 @app.get("/health")

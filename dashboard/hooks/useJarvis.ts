@@ -2,6 +2,8 @@
 
 import { useCallback, useRef, useState } from "react";
 
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+
 export interface VisionResult {
   riesgo: boolean;
   nivel: "ALTO" | "MEDIO" | "BAJO" | "NINGUNO";
@@ -33,8 +35,8 @@ async function speakText(text: string, urgent = false): Promise<void> {
       window.speechSynthesis.speak(utterance);
     });
   }
-  // Fallback: OpenAI TTS si speechSynthesis no está disponible
-  const res = await fetch("/api/tts", {
+  // Fallback: OpenAI TTS vía FastAPI si speechSynthesis no está disponible
+  const res = await fetch(`${API_BASE}/ai/tts`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, urgent }),
@@ -67,7 +69,7 @@ export function useJarvis(getTrafficContext: () => string) {
   // ── Analizar frame con GPT-4o Vision ─────────────────────────────────────
   const analyzeFrame = useCallback(async (imageBase64: string) => {
     try {
-      const res = await fetch("/api/vision", {
+      const res = await fetch(`${API_BASE}/ai/vision`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64 }),
@@ -78,7 +80,6 @@ export function useJarvis(getTrafficContext: () => string) {
       if (result.riesgo && result.nivel !== "NINGUNO") {
         setState((s) => ({ ...s, lastAlert: result }));
 
-        // Alertar solo si el nivel cambió o es ALTO (evita repeticiones)
         const shouldAlert =
           result.nivel === "ALTO" ||
           result.nivel !== lastAlertLevel.current;
@@ -105,7 +106,7 @@ export function useJarvis(getTrafficContext: () => string) {
   const askJarvis = useCallback(async (message: string, visionDesc?: string) => {
     if (isSpeaking.current) return;
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch(`${API_BASE}/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

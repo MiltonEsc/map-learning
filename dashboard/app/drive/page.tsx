@@ -93,7 +93,6 @@ function DriveMap({ center, routes, predictions, activeRouteId }: {
   const map = useMap();
   const locationMarker = useRef<google.maps.Marker | null>(null);
   const polylines = useRef<google.maps.Polyline[]>([]);
-  const navMode = activeRouteId !== null;
 
   useEffect(() => {
     if (!map) return;
@@ -110,29 +109,37 @@ function DriveMap({ center, routes, predictions, activeRouteId }: {
     }
     locationMarker.current.setPosition(center);
     map.panTo(center);
-    if (navMode) map.setZoom(17);
-  }, [map, center, navMode]);
+    if (activeRouteId !== null) map.setZoom(17);
+  }, [map, center, activeRouteId]);
 
   useEffect(() => {
-    if (!map || routes.length === 0) return;
+    if (!map) return;
     polylines.current.forEach((p) => p.setMap(null));
     polylines.current = [];
 
-    const toDraw = navMode ? routes.filter((r) => r.id === activeRouteId) : routes;
-    toDraw.forEach(async (route) => {
-      const level = predictions[route.id]?.traffic_level ?? "LOW";
-      const encoded = await getRoutePolyline(route.id);
-      if (!encoded) return;
+    if (activeRouteId === null) return; // nothing to draw when no route active
+
+    const route = routes.find((r) => r.id === activeRouteId);
+    if (!route) return;
+
+    let cancelled = false;
+    const level = predictions[route.id]?.traffic_level ?? "LOW";
+
+    getRoutePolyline(route.id).then((encoded) => {
+      if (cancelled || !encoded) return;
       const path = google.maps.geometry.encoding.decodePath(encoded);
       const pl = new google.maps.Polyline({
-        path, strokeColor: TRAFFIC_COLORS[level],
-        strokeWeight: navMode ? 7 : 5, strokeOpacity: 0.9, map,
+        path, strokeColor: TRAFFIC_COLORS[level], strokeWeight: 7, strokeOpacity: 0.9, map,
       });
       polylines.current.push(pl);
     });
 
-    return () => { polylines.current.forEach((p) => p.setMap(null)); };
-  }, [map, routes, predictions, activeRouteId, navMode]);
+    return () => {
+      cancelled = true;
+      polylines.current.forEach((p) => p.setMap(null));
+      polylines.current = [];
+    };
+  }, [map, routes, predictions, activeRouteId]);
 
   return null;
 }
