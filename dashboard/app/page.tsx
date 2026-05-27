@@ -114,7 +114,12 @@ export default function Dashboard() {
                   Predicciones actuales
                 </h2>
                 {routes.map((route) => (
-                  <RouteCard key={route.id} route={route} />
+                  <RouteCard
+                    key={route.id}
+                    route={route}
+                    onUpdated={fetchRoutes}
+                    onDeleted={fetchRoutes}
+                  />
                 ))}
                 {routes.length === 0 && apiOk && (
                   <div className="rounded-2xl border border-white/5 bg-zinc-900 p-5 text-white/30 text-sm text-center">

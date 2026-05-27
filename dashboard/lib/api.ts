@@ -68,6 +68,28 @@ export async function getHistory(routeId: number, days = 7): Promise<HistoryResp
   return res.json();
 }
 
+export async function updateRoute(
+  routeId: number,
+  data: { label?: string; typical_departure_time?: string | null; active?: boolean }
+): Promise<Route> {
+  const res = await fetch(`${API_BASE}/routes/${routeId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Error actualizando ruta");
+  return res.json();
+}
+
+export async function deleteRoute(routeId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/routes/${routeId}`, {
+    method: "DELETE",
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Error eliminando ruta");
+}
+
 export async function getRoutePolyline(routeId: number): Promise<string | null> {
   try {
     const res = await fetch(`${API_BASE}/navigate/${routeId}/polyline`, { cache: "no-store" });

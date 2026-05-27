@@ -72,3 +72,9 @@ class RouteCreate(BaseModel):
     dest_lon: float
     typical_departure_time: str | None = None
     active: bool = True
+
+
+class RouteUpdate(BaseModel):
+    label: str | None = None
+    typical_departure_time: str | None = None
+    active: bool | None = None

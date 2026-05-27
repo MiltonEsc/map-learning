@@ -24,6 +24,26 @@ def create_route(db: Session, **kwargs) -> Route:
     return route
 
 
+def update_route(db: Session, route_id: int, **kwargs) -> Route | None:
+    route = db.get(Route, route_id)
+    if not route:
+        return None
+    for key, value in kwargs.items():
+        setattr(route, key, value)
+    db.commit()
+    db.refresh(route)
+    return route
+
+
+def delete_route(db: Session, route_id: int) -> bool:
+    route = db.get(Route, route_id)
+    if not route:
+        return False
+    db.delete(route)
+    db.commit()
+    return True
+
+
 # ── Traffic Records ───────────────────────────────────────────────────────────
 
 def insert_traffic_record(
