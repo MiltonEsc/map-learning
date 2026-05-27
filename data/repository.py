@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, delete as sql_delete
 
 from data.models import Route, TrafficRecord, WeatherRecord, PredictionLog, TrafficLevel
 
@@ -39,6 +39,9 @@ def delete_route(db: Session, route_id: int) -> bool:
     route = db.get(Route, route_id)
     if not route:
         return False
+    # Bulk delete para no cargar miles de registros en memoria
+    db.execute(sql_delete(TrafficRecord).where(TrafficRecord.route_id == route_id))
+    db.execute(sql_delete(PredictionLog).where(PredictionLog.route_id == route_id))
     db.delete(route)
     db.commit()
     return True
